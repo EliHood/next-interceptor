@@ -2,7 +2,7 @@
 
 ### Description
 
-Server side interceptor for server components.
+Server side interceptor for server components. Handles refresh rotation essentially.
 
 ### Requirements
 
