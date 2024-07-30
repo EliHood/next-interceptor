@@ -2,14 +2,13 @@ import { cookies } from "next/headers";
 import fetch from "node-fetch";
 import { FetchReturnType, Options, RefreshTokenResponse } from "./types";
 
-/**
- *
- * @todo need to delegate logic to developer, as this would be different.
- */
-
 let originalFetch: any = fetch;
 
 type NextRequestInit = {
+  /**
+   * Some routes do not require an auth token so its optional.
+   * But will be false by default.
+   */
   has_authorization_token?: boolean;
 } & RequestInit;
 
