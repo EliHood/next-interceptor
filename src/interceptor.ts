@@ -57,7 +57,8 @@ export function nextIntercepor(options: Options): NextInterceptor {
   ): Promise<FetchReturnType> {
     const currentToken = cookies().get(ACCESS_TOKEN_NAME)?.value;
 
-    if (!currentToken) return "No Access Token Provided" as any;
+    if (!currentToken)
+      return "The client access token name does not exist or there was no access token provided!" as any;
 
     const headers: Record<string, unknown> = {
       ...init.headers,
