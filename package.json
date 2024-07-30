@@ -1,7 +1,7 @@
 {
   "name": "next-interceptor",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "author": "Eli Hood",
   "homepage": "https://github.com/EliHood/next-interceptor",
   "scripts": {
