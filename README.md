@@ -21,8 +21,7 @@ next-interceptor assumes the developer has already set a cookie on the client si
 ### Example Usage
 
 ```javascript
-import { nextIntercepor } from "../interceptor";
-import { CookieWrapper } from "../cookie-wrapper";
+import { CookieWrapper, nextIntercepor } from "next-interceptor";
 
 const fetchInterceptor = nextIntercepor({
   base_url: "http://localhost:5001", // this is the base url were express server is running.
