@@ -6,6 +6,6 @@
 
 ### Instructions
 
-- yarn add next-interceptor
+- `yarn add next-interceptor`
 
 # next-interceptor
