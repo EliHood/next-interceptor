@@ -1,6 +1,11 @@
 import { cookies } from "next/headers";
 import fetch from "node-fetch";
-import { FetchReturnType, RefreshTokenResponse } from "./types";
+import { FetchReturnType, Options, RefreshTokenResponse } from "./types";
+
+/**
+ *
+ * @todo need to delegate logic to developer, as this would be different.
+ */
 
 const refreshAccessToken = async (
   baseUrl: string,
@@ -26,82 +31,86 @@ const refreshAccessToken = async (
 
 let originalFetch: any = fetch;
 
-type Options = {
-  BASE_URL: string;
-  access_token_name: string;
-  refresh_token_name: string;
-  has_authorization: boolean;
-};
-
-export const fetchWithInterceptor = async (
+type NextInterceptor = (
   input: string,
-  options: Options,
-  init: RequestInit = {}
-): Promise<FetchReturnType> => {
-  const currentToken = cookies().get(options.access_token_name)?.value;
+  init: RequestInit
+) => Promise<FetchReturnType>;
 
-  if (!currentToken) return "No Access Token Provided" as any;
+export function nextIntercepor(options: Options): NextInterceptor {
+  const { base_url, access_token_name, refresh_token_name, has_authorization } =
+    options;
 
-  const headers: Record<string, unknown> = {
-    ...init.headers,
-  };
+  const BASE_URL = base_url;
+  const ACCESS_TOKEN_NAME = access_token_name;
+  const REFRESH_TOKEN_NAME = refresh_token_name;
 
-  if (options.has_authorization) {
-    headers["Authorization"] = `${currentToken}`;
-  }
+  return async function fetchIntercepor(
+    input: string,
+    init: RequestInit = {}
+  ): Promise<FetchReturnType> {
+    const currentToken = cookies().get(ACCESS_TOKEN_NAME)?.value;
 
-  const newInput = `${options.BASE_URL}${input}`;
-  const response = await originalFetch?.(newInput, {
-    ...init,
-    headers,
-  });
+    if (!currentToken) return "No Access Token Provided" as any;
 
-  const newResponse = await response.json();
+    const headers: Record<string, unknown> = {
+      ...init.headers,
+    };
 
-  let retry = false;
-
-  console.log("MIAMI", newResponse);
-
-  //Check if the response indicates an expired token (often 401 Unauthorized)
-  if (
-    newResponse.status === 401 &&
-    !retry &&
-    newResponse.message === "jwt expired"
-  ) {
-    // Attempt to refresh the token
-    try {
-      const { newAccessToken, newRefreshToken } = await refreshAccessToken(
-        options.BASE_URL,
-        options.refresh_token_name
-      );
-
-      const retryResponse = await originalFetch(newInput, {
-        ...init,
-        headers: {
-          ...init.headers,
-          Authorization: `${newAccessToken}`,
-        },
-      });
-      const newResponse = await retryResponse.json();
-      retry = true;
-
-      return {
-        refreshToken: {
-          name: options.refresh_token_name,
-          token: newRefreshToken,
-        },
-        accessToken: {
-          name: options.access_token_name,
-          token: newAccessToken,
-        },
-        data: newResponse,
-      };
-    } catch (error) {
-      console.error("Failed to refresh token", error);
-      throw error; // Rethrow the error for upstream handling
+    if (has_authorization) {
+      headers["Authorization"] = `${currentToken}`;
     }
-  }
 
-  //   If the response is ok, return the response data
-  return newResponse;
-};
+    const newInput = `${BASE_URL}${input}`;
+    const response = await originalFetch?.(newInput, {
+      ...init,
+      headers,
+    });
+
+    const newResponse = await response.json();
+
+    let retry = false;
+
+    //Check if the response indicates an expired token (often 401 Unauthorized)
+    if (
+      newResponse.status === 401 &&
+      !retry &&
+      newResponse.message === "jwt expired"
+    ) {
+      // Attempt to refresh the token
+      try {
+        const { newAccessToken, newRefreshToken } = await refreshAccessToken(
+          BASE_URL,
+          options.refresh_token_name
+        );
+
+        const retryResponse = await originalFetch(newInput, {
+          ...init,
+          headers: {
+            ...init.headers,
+            Authorization: `${newAccessToken}`,
+          },
+        });
+        const newResponse = await retryResponse.json();
+        retry = true;
+
+        return {
+          refreshToken: {
+            name: REFRESH_TOKEN_NAME,
+            token: newRefreshToken,
+          },
+          accessToken: {
+            name: ACCESS_TOKEN_NAME,
+            token: newAccessToken,
+          },
+          data: newResponse,
+        };
+      } catch (error) {
+        console.error("Failed to refresh token", error);
+        throw error; // Rethrow the error for upstream handling
+      }
+    }
+
+    //   If the response is ok, return the response data
+    return newResponse;
+  };
+}

@@ -12,4 +12,8 @@ Server side interceptor for server components.
 
 - `yarn add next-interceptor`
 
+add `esmExternals: "loose"` on next config experimental.
+
 (coming soon)
+
+next-interceptor assumes the developer has already set a cookie on the client side after successful login...
