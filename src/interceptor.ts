@@ -7,28 +7,6 @@ import { FetchReturnType, Options, RefreshTokenResponse } from "./types";
  * @todo need to delegate logic to developer, as this would be different.
  */
 
-const refreshAccessToken = async (
-  baseUrl: string,
-  refreshTokenName: string
-): Promise<RefreshTokenResponse> => {
-  const getRefreshToken = cookies().get(refreshTokenName)?.value as string;
-  const response = await fetch(`${baseUrl}/api/v1/users/refresh`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: getRefreshToken,
-    },
-  });
-
-  const data: any = await response.json();
-
-  const newAccessToken = data.token;
-
-  const newRefreshToken = data.refresh_token;
-
-  return { newAccessToken: newAccessToken, newRefreshToken: newRefreshToken }; // Return new access token
-};
-
 let originalFetch: any = fetch;
 
 type NextInterceptor = (
@@ -36,17 +14,44 @@ type NextInterceptor = (
   init: RequestInit
 ) => Promise<FetchReturnType>;
 
+type NextRequestInit = {
+  has_authorization_token?: boolean;
+} & RequestInit;
+
 export function nextIntercepor(options: Options): NextInterceptor {
-  const { base_url, access_token_name, refresh_token_name, has_authorization } =
+  const { base_url, access_token_name, refresh_token_name, refresh_url } =
     options;
 
   const BASE_URL = base_url;
   const ACCESS_TOKEN_NAME = access_token_name;
   const REFRESH_TOKEN_NAME = refresh_token_name;
 
+  const refreshAccessToken = async (
+    refresh_url: string
+  ): Promise<RefreshTokenResponse> => {
+    const getRefreshToken = cookies().get(REFRESH_TOKEN_NAME)?.value as string;
+    const response = await fetch(`${BASE_URL}/${refresh_url}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getRefreshToken,
+      },
+    });
+
+    const data: any = await response.json();
+
+    const newAccessToken = data[ACCESS_TOKEN_NAME];
+
+    const newRefreshToken = data[REFRESH_TOKEN_NAME];
+
+    return { newAccessToken: newAccessToken, newRefreshToken: newRefreshToken }; // Return new access token
+  };
+
   return async function fetchIntercepor(
     input: string,
-    init: RequestInit = {}
+    init: NextRequestInit = {
+      has_authorization_token: false,
+    }
   ): Promise<FetchReturnType> {
     const currentToken = cookies().get(ACCESS_TOKEN_NAME)?.value;
 
@@ -56,7 +61,7 @@ export function nextIntercepor(options: Options): NextInterceptor {
       ...init.headers,
     };
 
-    if (has_authorization) {
+    if (init.has_authorization_token) {
       headers["Authorization"] = `${currentToken}`;
     }
 
@@ -79,8 +84,7 @@ export function nextIntercepor(options: Options): NextInterceptor {
       // Attempt to refresh the token
       try {
         const { newAccessToken, newRefreshToken } = await refreshAccessToken(
-          BASE_URL,
-          options.refresh_token_name
+          refresh_url
         );
 
         const retryResponse = await originalFetch(newInput, {

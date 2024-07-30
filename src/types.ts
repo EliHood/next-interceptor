@@ -13,6 +13,7 @@ export type Options = {
   access_token_name: string;
   refresh_token_name: string;
   has_authorization: boolean;
+  refresh_url: string;
 };
 
 export type FetchReturnType = {
