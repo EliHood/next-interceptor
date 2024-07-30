@@ -13,5 +13,3 @@ Server side interceptor for server components.
 - `yarn add next-interceptor`
 
 (coming soon)
-
-# next-interceptor
