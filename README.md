@@ -16,7 +16,10 @@ add `esmExternals: "loose"` on next config experimental.
 
 (coming soon)
 
-next-interceptor assumes the developer has already set a cookie on the client side after successful login...
+next-interceptor assumes:
+
+- the developer has already set a cookie on the client side after successful login...
+- the developer has an express middleware already in place to add to routes.
 
 ### Example Usage
 
@@ -61,5 +64,49 @@ export default async function Home() {
       test
     </CookieWrapper>
   );
+}
+```
+
+### Express server example
+
+```javascript
+export async function refresh(req: Request, res: Response) {
+	try {
+		const refreshToken = req.header('RefreshToken') as string; // note: Header must match RefreshToken.
+
+		const [err, result] = await verifyToken(refreshToken, 'REFRESH_SECRET');
+
+		if (err) {
+			return auth401(res, 'invalidToken');
+		}
+
+
+		const dbToken = await PRISMA_DB.token.findFirst({
+			where: {
+				user_id: result?.id,
+				expired_at: {
+					gte: new Date(),
+				},
+			} as any,
+		});
+
+		if (!dbToken) {
+			return auth401(res, 'unAuthenticated');
+		}
+
+		/**
+		 * generates new access token upon every refresh request which
+		 */
+
+		const { access_token } = await signToken(result);
+
+		return res.status(200).send({
+			accessToken: access_token,
+			refreshToken: refreshToken,
+			status: 200,
+		});
+	} catch (error) {
+		return auth401(res, 'expiredToken');
+	}
 }
 ```

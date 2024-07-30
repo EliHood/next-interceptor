@@ -28,12 +28,19 @@ export function nextIntercepor(options: Options): NextInterceptor {
   const refreshAccessToken = async (
     refresh_url: string
   ): Promise<RefreshTokenResponse> => {
+    /**
+     * We get the refresh token to check if it expired, if it expired user would need to relogin.
+     *
+     * if refresh token still valid, we just generate a new access token and set it in Authorization.
+     *
+     * on line 75.
+     */
     const getRefreshToken = cookies().get(REFRESH_TOKEN_NAME)?.value as string;
     const response = await fetch(`${BASE_URL}/${refresh_url}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: getRefreshToken,
+        RefreshToken: getRefreshToken,
       },
     });
 
