@@ -7,5 +7,5 @@
 ### Instructions
 
 - yarn add next-interceptor
--
+
 # next-interceptor
