@@ -6,7 +6,7 @@ const fetchInterceptor = nextIntercepor({
   base_url: "http://localhost:5001",
   refresh_token_name: "refreshToken",
   access_token_name: "accessToken",
-  has_authorization: true,
+  refresh_url: "api/v1/users/refresh",
 });
 
 export default async function Home() {
@@ -14,6 +14,7 @@ export default async function Home() {
     try {
       const data = await fetchInterceptor("/api/v1/users/current_user", {
         method: "GET",
+        has_authorization_token: true,
       });
       return data;
     } catch (error) {

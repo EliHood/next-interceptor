@@ -10,7 +10,7 @@ export function useCookie({
   name: string;
 }): void {
   useEffect(() => {
-    if (!name) return;
+    if (!name || token === undefined) return;
     setCookie(name, token);
   }, [token]);
   return;

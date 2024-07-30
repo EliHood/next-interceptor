@@ -9,14 +9,14 @@ import { FetchReturnType, Options, RefreshTokenResponse } from "./types";
 
 let originalFetch: any = fetch;
 
-type NextInterceptor = (
-  input: string,
-  init: RequestInit
-) => Promise<FetchReturnType>;
-
 type NextRequestInit = {
   has_authorization_token?: boolean;
 } & RequestInit;
+
+type NextInterceptor = (
+  input: string,
+  init: NextRequestInit
+) => Promise<FetchReturnType>;
 
 export function nextIntercepor(options: Options): NextInterceptor {
   const { base_url, access_token_name, refresh_token_name, refresh_url } =
@@ -43,6 +43,9 @@ export function nextIntercepor(options: Options): NextInterceptor {
     const newAccessToken = data[ACCESS_TOKEN_NAME];
 
     const newRefreshToken = data[REFRESH_TOKEN_NAME];
+
+    console.log("NEW ACCESS TOKEN:", newAccessToken);
+    console.log("NEW REFRSH TOKEN:", newRefreshToken);
 
     return { newAccessToken: newAccessToken, newRefreshToken: newRefreshToken }; // Return new access token
   };

@@ -10,9 +10,14 @@ export type TokenType = {
 
 export type Options = {
   base_url: string;
+  /**
+   * must match access token response name casing.
+   */
   access_token_name: string;
+  /**
+   * must match refresh token response name casing.
+   */
   refresh_token_name: string;
-  has_authorization: boolean;
   refresh_url: string;
 };
 
