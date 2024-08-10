@@ -50,9 +50,6 @@ export function nextIntercepor(options: Options): NextInterceptor {
 
     const newRefreshToken = data[REFRESH_TOKEN_NAME];
 
-    console.log("NEW ACCESS TOKEN:", newAccessToken);
-    console.log("NEW REFRSH TOKEN:", newRefreshToken);
-
     return { newAccessToken: newAccessToken, newRefreshToken: newRefreshToken }; // Return new access token
   };
 
@@ -89,7 +86,7 @@ export function nextIntercepor(options: Options): NextInterceptor {
     if (
       newResponse.status === 401 &&
       !retry &&
-      newResponse.message === "jwt expired"
+      (newResponse.message as string)?.indexOf("expired") !== -1
     ) {
       // Attempt to refresh the token
       try {

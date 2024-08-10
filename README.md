@@ -18,7 +18,7 @@ add `esmExternals: "loose"` on next config experimental.
 
 next-interceptor assumes:
 
-- the developer has already set a cookie on the client side after successful login...
+- the developer has already set an access token cookie on the client side after successful login...
 - the developer has an express middleware already in place to add to routes.
 
 ### Example Usage
@@ -33,6 +33,8 @@ const fetchInterceptor = nextIntercepor({
   refresh_url: "api/v1/users/refresh", // this is the url that points to my express refresh token api.
 });
 
+
+// remember that we need an accessToken present in client side cookies.
 
 export default async function Home() {
   const getUser = async () => {
