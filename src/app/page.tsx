@@ -1,5 +1,5 @@
+import { CookieWrapper } from "../CookieWrapper";
 import { nextIntercepor } from "../interceptor";
-import { CookieWrapper } from "../cookie-wrapper";
 import React from "react";
 
 const fetchInterceptor = nextIntercepor({
