@@ -1,11 +1,19 @@
 "use client";
-import { ReactNode } from "react";
-import { useCookie } from "./useCookie";
+import { ReactNode, useEffect } from "react";
+import { storeToken } from "./cookie";
 
 type TokenType = {
   name: string;
   token: string;
 };
+
+function useCookie({ token, name }: { token: string; name: string }): void {
+  useEffect(() => {
+    if (!name || token === undefined) return;
+    storeToken({ name: name, token: token });
+  }, [token, name]);
+  return;
+}
 
 export function CookieWrapper({
   children,
