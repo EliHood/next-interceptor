@@ -23,7 +23,8 @@ export default async function Home() {
   };
 
   const data = await getUser();
-  console.log("check users", data);
+
+  console.log("data", data);
 
   return (
     <CookieWrapper
