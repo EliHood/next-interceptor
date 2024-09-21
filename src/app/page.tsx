@@ -1,5 +1,5 @@
+import { CookieWrapper } from "../CookieWrapper";
 import { nextIntercepor } from "../interceptor";
-import { CookieWrapper } from "../cookie-wrapper";
 import React from "react";
 
 const fetchInterceptor = nextIntercepor({
@@ -19,10 +19,11 @@ export default async function Home() {
       return data;
     } catch (error) {
       console.error("Error fetching data:", error);
+      return error;
     }
   };
 
-  const data = await getUser();
+  const data: any = await getUser();
 
   console.log("data", data);
 
