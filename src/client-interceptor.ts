@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
-import fetch from "node-fetch";
 import { FetchReturnType, Options, RefreshTokenResponse } from "./types";
+import Cookies from "js-cookie";
 
 let originalFetch: any = fetch;
 
@@ -17,7 +16,7 @@ type NextInterceptor = (
   init: NextRequestInit
 ) => Promise<FetchReturnType>;
 
-export function nextIntercepor(options: Options): NextInterceptor {
+export function clientInterceptor(options: Options): NextInterceptor {
   const { base_url, access_token_name, refresh_token_name, refresh_url } =
     options;
 
@@ -35,7 +34,7 @@ export function nextIntercepor(options: Options): NextInterceptor {
      *
      * on line 75.
      */
-    const getRefreshToken = cookies().get(REFRESH_TOKEN_NAME)?.value as string;
+    const getRefreshToken = Cookies.get(REFRESH_TOKEN_NAME) as string;
     const response = await fetch(`${BASE_URL}/${refresh_url}`, {
       method: "GET",
       headers: {
@@ -59,7 +58,7 @@ export function nextIntercepor(options: Options): NextInterceptor {
       has_authorization_token: false,
     }
   ): Promise<FetchReturnType> {
-    const currentToken = cookies().get(ACCESS_TOKEN_NAME)?.value;
+    const currentToken = Cookies.get(ACCESS_TOKEN_NAME);
 
     if (!currentToken)
       return "The client access token name does not exist or there was no access token provided!" as any;
