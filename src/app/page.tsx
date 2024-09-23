@@ -1,4 +1,3 @@
-import { CookieWrapper } from "../CookieWrapper";
 import { nextIntercepor } from "../interceptor";
 import React from "react";
 
@@ -27,12 +26,5 @@ export default async function Home() {
 
   console.log("data", data);
 
-  return (
-    <CookieWrapper
-      accessToken={data?.accessToken as any}
-      refreshToken={data?.refreshToken as any}
-    >
-      test
-    </CookieWrapper>
-  );
+  return <>test</>;
 }
