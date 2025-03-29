@@ -10,6 +10,7 @@ const fetchInterceptor = nextIntercepor({
 
 export default async function Home() {
   const getUser = async () => {
+    console.log("test");
     try {
       const data = await fetchInterceptor("/api/v1/users/current_user", {
         method: "GET",
